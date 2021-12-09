@@ -69,7 +69,13 @@ var displayCurrent = function(weather){
     currentWeatherEl.classList.add("border", "p-2", "m-1")
 
     var currentCity= document.createElement("h2");
-    currentCity.textContent=weather.name + " "+moment().format("(MM/DD/YYYY)");
+    currentCity.innerHTML=weather.name + " "+moment().format("(MM/DD/YYYY)");
+
+    var icon = weather.weather[0].icon;
+    var iconImage= document.createElement("img");
+    iconImage.setAttribute("src", "http://openweathermap.org/img/wn/" +icon+ ".png");
+    iconImage.className="iconImage";
+    currentCity.appendChild(iconImage);
     
     var temp = document.createElement("p");
     temp.textContent="Temp: " + weather.main.temp +" "+String.fromCharCode(176)+"F";
@@ -88,12 +94,26 @@ var displayCurrent = function(weather){
 };
 
 var display5Day = function(forcast){
+    console.log(forcast);
     fiveDayEl.textContent="";
     fiveDayEl.classList.add("m-1")
     var dayTracker = 1;
 
     var uv = document.createElement("p");
-    uv.textContent= "UV Index: " + forcast.current.humidity +"%";
+    uv.textContent= "UV Index: ";
+
+    var uvi=document.createElement("span");
+    uvi.textContent=forcast.current.uvi;
+    
+    if(uvi.textContent < 2){
+        uvi.className ="bg-success";
+    } else if(uvi.textContent >= 2 && uvi.textContent < 5){
+        uvi.className="bg-warning"
+    } else {
+        uvi.className="bg-danger"
+    };
+    
+    uv.appendChild(uvi);
     currentWeatherEl.append(uv);
 
     var dailyforcast = document.createElement("h3");
@@ -132,3 +152,8 @@ var display5Day = function(forcast){
 
 displayCityList();
 searchFormEl.addEventListener("submit", formSubmitHandler);
+cityListEl.addEventListener("click", function(event){
+    var city = event.target.textContent
+    getCurrentWeth(city);
+    // console.log("Hello");
+});
