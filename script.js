@@ -22,7 +22,7 @@ var formSubmitHandler = function(event){
 var cityList = function(city){
     if(cityListArr.includes(city)===false){
         var cityBtn = document.createElement("button");
-        cityBtn.classList.add("m-1", "bg-secondary")
+        cityBtn.classList.add("m-1", "cityBtn", "bg-gradient")
         cityBtn.textContent = city;
     
         cityListEl.append(cityBtn);
@@ -36,7 +36,7 @@ console.log(cityListArr);
 var displayCityList = function(){
     for(var i=0; i<cityListArr.length; i++){
         var cityBtn = document.createElement("button");
-        cityBtn.classList.add("m-1", "bg-secondary")
+        cityBtn.classList.add("m-1", "cityBtn", "bg-gradient");
         cityBtn.textContent = cityListArr[i];
 
         cityListEl.append(cityBtn)
@@ -46,9 +46,16 @@ var displayCityList = function(){
 var getCurrentWeth = function(city){
     var response = fetch("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=3818ca5ac2a56508daf02a0f6528796f")
         .then(function(response){
-            response.json().then(function(data){
-            displayCurrent(data);
-            });
+            if(response.ok){
+                response.json().then(function(data){
+                displayCurrent(data);
+                });
+            }else{
+                alert("Error: City not found. Please Try again");
+            }
+        })
+        .catch(function(error){
+            alert("Unable to connect to OpenWeather");
         });
 };
 
@@ -56,10 +63,13 @@ var getCurrentWeth = function(city){
 var get5Day = function(lat,lon){
     var response = fetch("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&units=imperial&exclude=minutely,hourly,alerts&appid=3818ca5ac2a56508daf02a0f6528796f")
         .then(function(response){
-            response.json().then(function(data){
-                // console.log(data);
+            if(response.ok){
+                response.json().then(function(data){
                 display5Day(data);
-            });
+                });
+            }else{
+                alert("Unable to retireve five day forcast");
+            }
         });
               
 };
@@ -117,7 +127,7 @@ var display5Day = function(forcast){
     currentWeatherEl.append(uv);
 
     var dailyforcast = document.createElement("h3");
-    dailyforcast.className="col-12"
+    dailyforcast.className="col-12 lookAhead"
     dailyforcast.textContent="Look Ahead:";
     fiveDayEl.append(dailyforcast);
 
@@ -126,7 +136,7 @@ var display5Day = function(forcast){
         var icon = fiveDayForcast.weather[0].icon;
 
         var container = document.createElement("div");
-        container.classList.add("col-2","d-flex", "flex-column", "bg-secondary", "p-1", "m-1", "text-light");
+        container.classList.add("fiveDayBlock", "col-2", "d-flex", "flex-column", "p-1", "m-1", "bg-gradient");
 
         var date= document.createElement("p")
         date.textContent= moment().add(dayTracker, "days").format("(MM/DD/YYYY)");
@@ -152,8 +162,8 @@ var display5Day = function(forcast){
 
 displayCityList();
 searchFormEl.addEventListener("submit", formSubmitHandler);
+
 cityListEl.addEventListener("click", function(event){
     var city = event.target.textContent
     getCurrentWeth(city);
-    // console.log("Hello");
 });
